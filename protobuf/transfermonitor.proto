@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package transfermonitor;
+
+service ControllerServer {
+	rpc MonitorControlService(stream ControlRequest) returns (stream DownloadAgentStatus) {}
+	rpc TriggerDownloadCheck(RequestPendingParam) returns (Empty) {}
+}
+
+message FileEntry {
+	string name = 1;
+}
+
+message PendingFilesResponse {
+	repeated FileEntry entries =1;
+}
+
+message Empty {
+	string id = 1;
+}
+
+message RequestPendingParam {
+	bool autoerase =1;
+}
+
+message RequestRemoteDownload {
+	string filename =1;
+}
+
+message ControlRequest {
+	oneof control_requests {
+		RequestRemoteDownload requesttransfer = 1;
+	}
+}
+
+message ReportStarted {
+	string name =1;
+}
+
+message ReportStopped {
+	string name =1;
+}
+
+message ReportStartTransfer {
+	string filename =1;
+	int64 filelength =2;
+	string checksum =3;
+}
+
+message ReportSkipTransfer {
+	string filename =1;
+}
+
+message ReportTransferBytes {
+	string filename =1;
+	int32 bytesthispayload =2;
+	int64 totalbytestransfered =3;
+	int64 filelength =4;
+	int64 elapsedseconds =5;
+	int32 bytespersecond =6;
+	int64 remainingseconds =7;
+}
+
+message ReportEndTransfer {
+	string filename =1;
+	bool sucess =2;
+	string failreason =3;
+	int64 totalbytes =4;
+	int64 totalseconds =5;
+}
+
+message ReportPushRequested {
+	string empty =1;
+}
+
+message DownloadAgentStatus {
+	oneof agent_status {
+		ReportStarted agentstarted = 1;
+		ReportStopped agentstopped = 2;
+		ReportStartTransfer agentstarttranssfer = 3;
+		ReportSkipTransfer agentskiptranssfer = 4;
+		ReportTransferBytes agenttranssferbytes = 5;
+		ReportEndTransfer agentendtransfer = 6;
+		ReportPushRequested agentpushrequeted = 7;
+	}
+}
