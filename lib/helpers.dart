@@ -1,6 +1,6 @@
 import 'package:grpc/grpc.dart';
-import 'package:Test/transfermonitor.pb.dart';
-import 'package:Test/transfermonitor.pbgrpc.dart';
+import 'package:Test/iplayerProtocol.pb.dart';
+import 'package:Test/iplayerProtocol.pbgrpc.dart';
 
 class GrpcClientSingleton {
   ClientChannel client;
@@ -10,22 +10,24 @@ class GrpcClientSingleton {
   factory GrpcClientSingleton() => _singleton;
 
   GrpcClientSingleton._internal() {
-    client = ClientChannel("", // Your IP here, localhost might not work.
-        port: 3000,
+    client = ClientChannel("https://kill.objectivepixel.io", // Your IP here, localhost might not work.
+        port: 443,
         options: ChannelOptions(
-          credentials: ChannelCredentials.insecure(),
-          idleTimeout: Duration(minutes: 1),
+          credentials: ChannelCredentials.secure(),
+          idleTimeout: Duration(minutes: 1)
         ));
+
   }
 }
 
 class HelloService {
-  static Future<Empty> SayHello() async{
+  static Future<PendingFilesResponse> SayHello() async{
     var client = ControllerServerClient(GrpcClientSingleton().client);
-    return await client.triggerDownloadCheck(RequestPendingParam());
+    return await client.getPendingFiles(Empty());
   }
 }
 
   Future<void> CallPing() async {
     var hello = await HelloService.SayHello();
+    print(hello);
   }
