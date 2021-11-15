@@ -10,7 +10,7 @@ class GrpcClientSingleton {
   factory GrpcClientSingleton() => _singleton;
 
   GrpcClientSingleton._internal() {
-    client = ClientChannel("https://kill.objectivepixel.io", // Your IP here, localhost might not work.
+    client = ClientChannel("kill.objectivepixel.io", // Your IP here, localhost might not work.
         port: 443,
         options: ChannelOptions(
           credentials: ChannelCredentials.secure(),
@@ -25,9 +25,27 @@ class HelloService {
     var client = ControllerServerClient(GrpcClientSingleton().client);
     return await client.getPendingFiles(Empty());
   }
+
+  static void startMonitoringString() async{
+    var client = ControllerServerClient(GrpcClientSingleton().client);
+
+    final receive = client.monitorControlService(GenerateTx());
+    
+    try {
+      await for (var message in receive) {
+        print(message);
+      }
+      print("exited");
+    } catch (e) {
+      print(e);
+    }
+  }
+  static Stream<ControlRequest> GenerateTx() async* {
+
+  }
 }
 
   Future<void> CallPing() async {
     var hello = await HelloService.SayHello();
-    print(hello);
+    print("Received " + hello.entries.length.toString());
   }
